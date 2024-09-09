@@ -1,8 +1,11 @@
 name: 'C++ CI'
+
 on:
   push:
     branches:
-      - master
+      - main
+      - feature/github_actions
+
 jobs:
   build:
     runs-on: ${{ matrix.os }} # Используем матрицу для выбора ОС
@@ -49,8 +52,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v0.0.${{ github.run_number }}
-          release_name: Release v0.0.${{ github.run_number }}
+          tag_name: ${{ github.run_number }}
+          release_name: Release ${{ github.run_number }}
           draft: false
           prerelease: false
       - name: Upload Release Asset
