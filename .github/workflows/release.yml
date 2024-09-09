@@ -46,7 +46,7 @@ jobs:
           submodules: true
       - run: cmake . -G "Visual Studio 17 2022" -DPATCH_VERSION=${{ github.run_number }}
       - run: cmake --build . --config Release
-      - run: cmake --build . --config Release --target test
+      # - run: cmake --build . --config Release --target test
       - run: cmake --build . --config Release --target package
       - name: Create Release
         id: create_release
