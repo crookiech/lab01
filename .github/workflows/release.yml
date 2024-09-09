@@ -6,9 +6,7 @@ on:
 
 jobs:
   build-linux:
-
     runs-on: ubuntu-latest
-    
     steps:
     - uses: actions/checkout@v1
     - name: Install bluetooth
@@ -22,15 +20,14 @@ jobs:
         mkdir out
         cp dist/linux.AppImage out/
         cp dist/linux.deb out/
-        
     - name: Upload build
       uses: actions/upload-artifact@master
       with:
         name: linux
         path: out
+
   build-mac:
     runs-on: macOS-latest
-    
     steps:
     - uses: actions/checkout@v1
     - uses: actions/setup-node@v1
@@ -52,7 +49,6 @@ jobs:
         
   build-win:
     runs-on: windows-latest
-    
     steps:
     - uses: actions/checkout@v1
     - uses: actions/setup-node@v1
@@ -80,39 +76,36 @@ jobs:
     - name: Download linux artifact
       uses: actions/download-artifact@master
       with:
-        name: linux
-          
+
+        name: linux 
     - name: Download mac artifact
       uses: actions/download-artifact@master
       with:
+
         name: mac
-        
     - name: Download win artifact
       uses: actions/download-artifact@master
       with:
+
         name: win
-      
     - name: Upload to Release deb
       uses: JasonEtco/upload-to-release@v0.1.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
       with:
         args: linux/linux.deb application/vnd.debian.binary-package
-        
     - name: Upload to Release AppImage
       uses: JasonEtco/upload-to-release@v0.1.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
       with:
         args: linux/linux.AppImage application/x-executable
-        
     - name: Upload to Release pkg
       uses: JasonEtco/upload-to-release@v0.1.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
       with:
         args: mac/mac.pkg application/x-xar
-        
     - name: Upload to Release exe
       uses: JasonEtco/upload-to-release@v0.1.1
       env:
