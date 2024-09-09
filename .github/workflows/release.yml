@@ -1,0 +1,65 @@
+name: 'C++ CI'
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ${{ matrix.os }} # Используем матрицу для выбора ОС
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest] # Матрица для Linux и Windows
+        generator: 
+          - 'Unix Makefiles' # Для Linux
+          - 'Visual Studio 17 2022' # Для Windows
+        asset_path: 
+          - './package/helloworld-0.0.${{ github.run_number }}-Linux.zip' # Для Linux
+          - './package/helloworld-0.0.${{ github.run_number }}-Windows.zip' # Для Windows
+        asset_name: 
+          - helloworld-0.0.${{ github.run_number }}-Linux.zip # Для Linux
+          - helloworld-0.0.${{ github.run_number }}-Windows.zip # Для Windows
+        content_type: 
+          - application/zip # Для обоих
+        extension: 
+          - zip # Для обоих
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Install Dependencies
+        if: matrix.os == 'ubuntu-latest' # Устанавливаем зависимости только для Linux
+        run: sudo apt-get update && sudo apt-get install libboost-test-dev -y
+      - name: Configure CMake
+        run: |
+          cmake . 
+            -DPATCH_VERSION=${{ github.run_number }} 
+            -G ${{ matrix.generator }} # Используем матрицу для выбора генератора CMake
+        if: matrix.os == 'windows-latest' # Используем Visual Studio Generator для Windows
+        continue-on-error: true # Продолжаем сборку даже при ошибках конфигурации CMake
+      - name: Build
+        run: cmake --build . --config Release
+      - name: Run Tests
+        run: cmake --build . --config Release --target test 
+      - name: Package
+        run: cmake --build . --config Release --target package
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v0.0.${{ github.run_number }}
+          release_name: Release v0.0.${{ github.run_number }}
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ matrix.asset_path }}
+          asset_name: ${{ matrix.asset_name }}
+          asset_content_type: ${{ matrix.content_type }}

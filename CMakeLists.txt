@@ -27,10 +27,15 @@ else ()
     )
 endif()
 install(TARGETS helloworld_cli RUNTIME DESTINATION bin)
-set(CPACK_GENERATOR DEB) 
+
+# CPack
+include(CPack)
+set(CPACK_GENERATOR ZIP) # Используем ZIP для обоих платформ
 set(CPACK_PACKAGE_VERSION_MAJOR 0)
 set(CPACK_PACKAGE_VERSION_MINOR 0)
 set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
 set(CPACK_PACKAGE_CONTACT example@example.com)
-include(CPack)
-enable_testing()
+set(CPACK_SOURCE_PACKAGE_NAME helloworld)
+set(CPACK_PACKAGE_FILE_NAME helloworld)
+set(CPACK_PACKAGE_VENDOR "Your Company") # Замените на ваше имя компании
+set(CPACK_PACKAGE_DESCRIPTION "Description of your software") # Замените на описание
