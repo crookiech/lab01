@@ -30,9 +30,9 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v1
-    - uses: actions/setup-node@v1
+    - uses: actions/setup-node@v3  # Изменено на v3
       with:
-        node-version: '8.x'
+        node-version: '18.x'  # Изменено на поддерживаемую версию
     - name: Install dependencies
       run: npm install
     - name: Build mac
@@ -51,9 +51,9 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v1
-    - uses: actions/setup-node@v1
+    - uses: actions/setup-node@v3
       with:
-        node-version: '8.x'
+        node-version: '18.x'
     - name: Install dependencies
       run: npm install
     - name: Build win
@@ -61,7 +61,7 @@ jobs:
     - name: Creating out
       run: | 
         mkdir out
-        copy dist\win.exe out\
+        copy distwin.exe out
     - name: Upload build
       uses: actions/upload-artifact@master
       with:
