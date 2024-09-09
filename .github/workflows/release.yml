@@ -1,10 +1,13 @@
 name: 'C++ CI'
+
 on:
   push:
     branches:
       - master
+      - feature/github_actions
+
 jobs:
-  build:
+  build_ubuntu:
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
@@ -16,23 +19,69 @@ jobs:
       - run: cmake --build .
       - run: cmake --build . --target test
       - run: cmake --build . --target package
-      - name: Create Release
-        id: create_release
+      - name: Create Release (Ubuntu)
+        id: create_release_ubuntu
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.run_number }}
-          release_name: Release ${{ github.run_number }}
+          release_name: Release ${{ github.run_number }} (Ubuntu)
           draft: false
           prerelease: false
-      - name: Upload Release Asset
-        id: upload-release-asset
+      - name: Upload Release Asset (Ubuntu)
+        id: upload-release-asset-ubuntu
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ steps.create_release_ubuntu.outputs.upload_url }}
           asset_path: ./helloworld-0.0.${{ github.run_number }}-Linux.deb
           asset_name: helloworld-0.0.${{ github.run_number }}-Linux.deb
           asset_content_type: application/vnd.debian.binary-package
+  build_windows:
+    runs-on: windows-latest
+    needs: download_boost
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Download Boost
+        uses: actions/download-artifact@v3
+        with:
+          name: boost
+          path: ./boost
+      - name: Install Boost
+        run: |
+          cd boost
+          unzip boost_1_81_0.zip
+          cd boost_1_81_0
+          bootstrap.bat -j=4
+          b2 toolset=msvc address-model=64 variant=release link=static threading=multi runtime-link=static
+          cd ..
+          cd ..
+      - run: cmake . -DPATCH_VERSION=${{ github.run_number }} -DBOOST_ROOT=./boost/boost_1_81_0 
+      - run: cmake --build .
+      - run: cmake --build . --target test
+      - run: cmake --build . --target package
+      - name: Create Release (Windows)
+        id: create_release_windows
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.run_number }}
+          release_name: Release ${{ github.run_number }} (Windows)
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset (Windows)
+        id: upload-release-asset-windows
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release_windows.outputs.upload_url }}
+          asset_path: ./helloworld-0.0.${{ github.run_number }}-Windows.exe
+          asset_name: helloworld-0.0.${{ github.run_number }}-Windows.exe
+          asset_content_type: application/x-msdownload
