@@ -6,7 +6,7 @@ find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 configure_file(version.h.in version.h)
 
 add_executable(helloworld main.cpp)
-add_library(helloworld_lib lib.cpp)  # Измененное имя библиотеки
+add_library(helloworld_lib lib.cpp) 
 add_executable(test_version test_version.cpp)
 
 set_target_properties(helloworld helloworld test_version PROPERTIES
@@ -23,12 +23,15 @@ set_target_properties(test_version PROPERTIES
     INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIR}
 )
 
+# **Убедитесь, что target_link_libraries находится после add_executable**
+add_executable(helloworld_cli main.cpp)
 target_link_libraries(helloworld_cli PRIVATE
-    helloworld_lib  # Измененное имя библиотеки
+    helloworld_lib  
 )
+
 target_link_libraries(test_version
     ${Boost_LIBRARIES}
-    helloworld_lib  # Измененное имя библиотеки
+    helloworld_lib
 )
 
 if (MSVC)
@@ -74,7 +77,6 @@ add_custom_command(TARGET helloworld POST_BUILD
 include(CPack)
 enable_testing()
 add_test(test_version test_version)
-
 
 # cmake_minimum_required(VERSION 3.10)
 # set(PATCH_VERSION "1" CACHE INTERNAL "Patch version")
