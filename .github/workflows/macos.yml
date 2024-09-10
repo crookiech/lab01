@@ -7,7 +7,7 @@ on:
       - feature/github_actions
 
 jobs:
-  build_macos:
+  build:
     runs-on: macos-14
     permissions: write-all
     steps:
